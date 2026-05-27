@@ -20,6 +20,7 @@ export function ScheduleForm() {
 
   const form = useClientForm({
     schema: createMessageSchema,
+    mode: 'onChange',
     handler: (values) => createMessage(values),
     onSubmitSuccess: () => {
       toast.success('Message scheduled successfully!')
@@ -92,6 +93,7 @@ export function ScheduleForm() {
                         <FormControl>
                           <Button
                             variant="outline"
+                            noMotion
                             className={cn(
                               'w-full justify-start text-left font-normal',
                               !selectedDate && 'text-muted-foreground',

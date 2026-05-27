@@ -1,18 +1,13 @@
 import 'dotenv/config'
 import fastifyCors from '@fastify/cors'
-import { fastify } from 'fastify'
-import {
-  serializerCompiler,
-  validatorCompiler,
-  type ZodTypeProvider,
-} from 'fastify-type-provider-zod'
-import { z } from 'zod'
 import axios from 'axios'
+import { fastify } from 'fastify'
+import { serializerCompiler, validatorCompiler, type ZodTypeProvider } from 'fastify-type-provider-zod'
+import { z } from 'zod'
 import { createAdapter } from './adapters/factory'
 
 const GATEWAY_PORT = Number(process.env.GATEWAY_PORT ?? 4000)
-const API_STATUS_CALLBACK_URL =
-  process.env.API_STATUS_CALLBACK_URL ?? 'http://localhost:3333/api/gateway/status'
+const API_STATUS_CALLBACK_URL = process.env.API_STATUS_CALLBACK_URL ?? 'http://localhost:3333/api/gateway/status'
 
 const adapter = createAdapter()
 
@@ -47,7 +42,6 @@ app.route({
 
     const result = await adapter.send({ messageId, toPhone, body })
 
-    // Fire-and-forget status callback to API
     const idempotencyKey = `${result.providerMessageId}-${result.status}`
     axios
       .post(API_STATUS_CALLBACK_URL, {

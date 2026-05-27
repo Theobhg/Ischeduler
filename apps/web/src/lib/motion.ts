@@ -20,6 +20,7 @@ export const fadeUpVariants = {
     y: 0,
     transition: {
       ...springTransition,
+      duration: 1,
       staggerChildren: 0.06,
     },
   },

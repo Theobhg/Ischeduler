@@ -124,7 +124,7 @@ export const useClientForm = <Input extends z.ZodType<any, any>, Output>({
     handleSubmit()
   }
 
-  const canSubmit = form.formState.isValid && !isSubmitting && form.formState.isDirty
+  const canSubmit = form.formState.isValid && !isSubmitting
 
   return {
     ...form,

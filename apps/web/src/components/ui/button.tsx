@@ -1,4 +1,5 @@
 import type * as React from "react"
+import type { MotionProps } from "motion/react"
 import { motion, useReducedMotion } from "motion/react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { Slot } from "radix-ui"
@@ -46,11 +47,13 @@ function Button({
   variant = "default",
   size = "default",
   asChild = false,
+  noMotion = false,
   ...props
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean
-  }) {
+    noMotion?: boolean
+  } & Pick<MotionProps, 'whileHover' | 'whileTap' | 'animate' | 'transition'>) {
   const shouldReduceMotion = useReducedMotion()
 
   if (asChild) {
@@ -71,7 +74,7 @@ function Button({
       data-variant={variant}
       data-size={size}
       className={cn(buttonVariants({ variant, size, className }))}
-      {...(shouldReduceMotion ? {} : buttonMotion)}
+      {...(shouldReduceMotion || noMotion ? {} : buttonMotion)}
       {...props}
     />
   )

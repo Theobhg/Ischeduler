@@ -8,17 +8,20 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { messageStatusIcon, messageStatusLabel } from './status-tones'
 
-const STATUS_FILTER_OPTIONS: { label: string; value: MessageStatus | 'ALL' }[] = [
+type StatusFilterValue = MessageStatus | 'ALL'
+
+const STATUS_FILTER_OPTIONS: { label: string; value: StatusFilterValue }[] = [
   { label: 'All', value: 'ALL' },
-  ...MESSAGE_STATUSES.map((s) => ({ label: s, value: s })),
+  ...MESSAGE_STATUSES.map((s) => ({ label: messageStatusLabel[s], value: s })),
 ]
 
 interface MessagesTableCardProps {
   search: string
-  statusFilter: MessageStatus | 'ALL'
+  statusFilter: StatusFilterValue
   onSearchChange: (value: string) => void
-  onStatusFilterChange: (value: MessageStatus | 'ALL') => void
+  onStatusFilterChange: (value: StatusFilterValue) => void
   columns: ColumnDef<MessageResponse>[]
   messages: MessageResponse[]
   total: number
@@ -58,17 +61,23 @@ export function MessagesTableCard({
             onChange={(e) => onSearchChange(e.target.value)}
             className="max-w-xs"
           />
-          <Select value={statusFilter} onValueChange={(v) => onStatusFilterChange(v as MessageStatus | 'ALL')}>
+          <Select value={statusFilter} onValueChange={(v) => onStatusFilterChange(v as StatusFilterValue)}>
             <SelectTrigger className="w-[160px]">
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                {STATUS_FILTER_OPTIONS.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </SelectItem>
-                ))}
+                {STATUS_FILTER_OPTIONS.map((opt) => {
+                  const Icon = opt.value !== 'ALL' ? messageStatusIcon[opt.value] : null
+                  return (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      <span className="flex items-center gap-2">
+                        {Icon && <Icon className="size-3.5 shrink-0 text-muted-foreground" />}
+                        {opt.label}
+                      </span>
+                    </SelectItem>
+                  )
+                })}
               </SelectGroup>
             </SelectContent>
           </Select>

@@ -1,7 +1,7 @@
+import type { MessageResponse } from '@ischeduler/shared'
 import type { ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
-import { XCircleIcon, EyeIcon } from 'lucide-react'
-import type { MessageResponse } from '@ischeduler/shared'
+import { EyeIcon, XCircleIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { MessageStatusBadge } from './message-status-badge'
@@ -21,26 +21,20 @@ export function getMessageColumns({
     {
       accessorKey: 'toPhone',
       header: 'Recipient',
-      cell: ({ row }) => (
-        <span className="font-mono text-sm">{row.original.toPhone}</span>
-      ),
+      cell: ({ row }) => <span className="font-mono text-sm">{row.original.toPhone}</span>,
     },
     {
       accessorKey: 'body',
       header: 'Preview',
       cell: ({ row }) => (
-        <span className="max-w-[200px] truncate block text-sm text-muted-foreground">
-          {row.original.body}
-        </span>
+        <span className="max-w-[200px] truncate block text-sm text-muted-foreground">{row.original.body}</span>
       ),
     },
     {
       accessorKey: 'scheduledAt',
       header: 'Scheduled At',
       cell: ({ row }) => (
-        <span className="text-sm whitespace-nowrap">
-          {format(new Date(row.original.scheduledAt), 'PPp')}
-        </span>
+        <span className="text-sm whitespace-nowrap">{format(new Date(row.original.scheduledAt), 'PPp')}</span>
       ),
     },
     {
@@ -66,12 +60,7 @@ export function getMessageColumns({
           <div className="flex items-center gap-1">
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  aria-label="View timeline"
-                  onClick={() => onView(msg.id)}
-                >
+                <Button variant="ghost" size="icon" aria-label="View timeline" onClick={() => onView(msg.id)}>
                   <EyeIcon data-icon />
                 </Button>
               </TooltipTrigger>

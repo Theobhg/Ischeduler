@@ -1,5 +1,5 @@
-import type { Job } from 'bullmq'
 import axios from 'axios'
+import type { Job } from 'bullmq'
 import { prisma } from './prisma'
 
 const GATEWAY_URL = process.env.GATEWAY_URL ?? 'http://localhost:4000'

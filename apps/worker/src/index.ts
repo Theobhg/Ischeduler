@@ -1,17 +1,17 @@
 import 'dotenv/config'
 import { Worker } from 'bullmq'
-import { Redis } from 'ioredis'
 import { processor } from './processor'
 
 const SEND_INTERVAL_MS = Number(process.env.SEND_INTERVAL_MS ?? 60000)
 const WORKER_CONCURRENCY = Number(process.env.WORKER_CONCURRENCY ?? 1)
 
-const connection = new Redis(process.env.REDIS_URL ?? 'redis://localhost:6379', {
-  maxRetriesPerRequest: null,
-})
-
 const worker = new Worker('messages', processor, {
-  connection,
+  connection: {
+    host: 'localhost',
+    port: 6379,
+    password: '',
+    maxRetriesPerRequest: null,
+  },
   concurrency: WORKER_CONCURRENCY,
   limiter: {
     max: 1,
