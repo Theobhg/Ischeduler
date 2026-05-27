@@ -12,6 +12,7 @@
     "db:deploy": "pnpm with-env turbo run db:deploy",
     "db:reset": "pnpm with-env turbo run db:reset",
     "db:studio": "pnpm with-env turbo run db:studio",
+    "db:push": "pnpm with-env turbo run db:push",
     "with-env": "dotenv -e .env --"
   },
   "devDependencies": {
