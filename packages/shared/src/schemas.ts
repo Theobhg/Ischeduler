@@ -95,3 +95,14 @@ export const queueStatsSchema = z.object({
 })
 
 export type QueueStats = z.infer<typeof queueStatsSchema>
+
+export const messageStatsSchema = z.object({
+  scheduled: z.number(),
+  queued: z.number(),
+  sent: z.number(),
+  failed: z.number(),
+  cancelled: z.number(),
+  total: z.number(),
+})
+
+export type MessageStats = z.infer<typeof messageStatsSchema>
