@@ -6,3 +6,49 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum MessageStatus {
+  SCHEDULED
+  QUEUED
+  ACCEPTED
+  SENT
+  DELIVERED
+  RECEIVED
+  FAILED
+  CANCELLED
+}
+
+model ScheduledMessage {
+  id                String        @id @default(uuid()) @db.Uuid
+  toPhone           String
+  body              String
+  scheduledAt       DateTime
+  status            MessageStatus @default(SCHEDULED)
+  provider          String?
+  providerMessageId String?
+  errorMessage      String?
+  retryCount        Int           @default(0)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  statusEvents MessageStatusEvent[]
+
+  @@index([status])
+  @@index([scheduledAt])
+  @@map("scheduled_messages")
+}
+
+model MessageStatusEvent {
+  id             String        @id @default(uuid()) @db.Uuid
+  messageId      String        @db.Uuid
+  status         MessageStatus
+  payload        Json?
+  idempotencyKey String?
+  createdAt      DateTime      @default(now())
+
+  message ScheduledMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, status, idempotencyKey])
+  @@index([messageId])
+  @@map("message_status_events")
+}
