@@ -7,16 +7,17 @@ const QUERY_KEY = ['messages'] as const
 
 export function useMessages(filters: MessagesFilters = {}) {
   return useQuery({
-    queryKey: ['messages', filters],
-    queryFn: () => {
-      const params: Record<string, string | number | undefined> = {
+    queryKey: [...QUERY_KEY, filters],
+    queryFn: async (): Promise<ListMessagesResponse> => {
+      const params: Record<string, string | number> = {
         limit: filters.limit ?? 20,
         offset: filters.offset ?? 0,
       }
       if (filters.status) params.status = filters.status
       if (filters.search) params.search = filters.search
 
-      return api.get<ListMessagesResponse>('/api/messages', { params }).then((r) => r.data)
+      const response = await api.get<ListMessagesResponse>('/messages', { params })
+      return response.data
     },
     refetchInterval: 3000,
     staleTime: 2000,
@@ -26,8 +27,11 @@ export function useMessages(filters: MessagesFilters = {}) {
 
 export function useMessage(id: string | null) {
   return useQuery({
-    queryKey: ['messages', 'detail', id],
-    queryFn: () => api.get<MessageWithEvents>(`/api/messages/${id}`).then((r) => r.data),
+    queryKey: [...QUERY_KEY, 'detail', id],
+    queryFn: async (): Promise<MessageWithEvents> => {
+      const response = await api.get<MessageWithEvents>(`/messages/${id}`)
+      return response.data
+    },
     enabled: !!id,
     refetchInterval: 3000,
     staleTime: 2000,
@@ -38,22 +42,40 @@ export function useMessage(id: string | null) {
 export function useCreateMessage() {
   const queryClient = useQueryClient()
 
-  return useMutation({
-    mutationFn: (input: CreateMessageInput) => api.post<MessageResponse>('/api/messages', input).then((r) => r.data),
+  const { mutateAsync, isPending, error } = useMutation({
+    mutationFn: async (input: CreateMessageInput): Promise<MessageResponse> => {
+      const response = await api.post<MessageResponse>('/messages', input)
+      return response.data
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEY })
     },
   })
+
+  return {
+    createMessage: mutateAsync,
+    isCreatingMessage: isPending,
+    createMessageError: error,
+  }
 }
 
 export function useCancelMessage() {
   const queryClient = useQueryClient()
 
-  return useMutation({
-    mutationFn: (id: string) => api.patch<MessageResponse>(`/api/messages/${id}/cancel`).then((r) => r.data),
+  const { mutate, isPending, error } = useMutation({
+    mutationFn: async (id: string): Promise<MessageResponse> => {
+      const response = await api.patch<MessageResponse>(`/messages/${id}/cancel`)
+      return response.data
+    },
     onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEY })
       queryClient.invalidateQueries({ queryKey: [...QUERY_KEY, 'detail', id] })
     },
   })
+
+  return {
+    cancelMessage: mutate,
+    isCancellingMessage: isPending,
+    cancelMessageError: error,
+  }
 }

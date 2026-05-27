@@ -51,7 +51,7 @@ export function HomePage() {
   })
 
   const { data: queueStats } = useQueueStats()
-  const cancelMessage = useCancelMessage()
+  const { cancelMessage, isCancellingMessage } = useCancelMessage()
 
   const allMessages = allData?.data ?? []
   const messages = filteredData?.data ?? []
@@ -66,7 +66,7 @@ export function HomePage() {
     .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())[0]
 
   function handleCancel(id: string) {
-    cancelMessage.mutate(id, {
+    cancelMessage(id, {
       onSuccess: () => toast.success('Message cancelled'),
       onError: (err: unknown) => {
         const msg =
@@ -85,7 +85,7 @@ export function HomePage() {
   const columns = getMessageColumns({
     onCancel: handleCancel,
     onView: handleView,
-    isCancelling: cancelMessage.isPending,
+    isCancelling: isCancellingMessage,
   })
 
   return (
