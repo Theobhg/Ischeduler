@@ -3,8 +3,32 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { api } from '@/lib/api'
 import type { MessagesFilters } from '@/types'
 
+/** Shared React Query key prefix for all message-related queries. */
 const QUERY_KEY = ['messages'] as const
 
+/**
+ * Fetches a paginated, filtered list of messages from `GET /messages`.
+ *
+ * Automatically refetches every 3 seconds to keep the table up-to-date
+ * without requiring manual refresh. Retains the previous data while a new
+ * request is in-flight to avoid flickering.
+ *
+ * @param filters - Optional query filters applied to the request.
+ * @param filters.status  Filter by a specific `MessageStatus`.
+ * @param filters.search  Case-insensitive substring match on `toPhone` or `body`.
+ * @param filters.limit   Number of records to return (default `20`).
+ * @param filters.offset  Number of records to skip for pagination (default `0`).
+ *
+ * @returns A React Query result object. The `data` property is a
+ *   `ListMessagesResponse`:
+ *   `{ data: MessageResponse[], total: number, limit: number, offset: number }`.
+ *
+ * @example
+ * ```tsx
+ * const { data, isLoading } = useMessages({ status: 'SCHEDULED', limit: 50 })
+ * const messages = data?.data ?? []
+ * ```
+ */
 export function useMessages(filters: MessagesFilters = {}) {
   return useQuery({
     queryKey: [...QUERY_KEY, filters],
@@ -25,6 +49,25 @@ export function useMessages(filters: MessagesFilters = {}) {
   })
 }
 
+/**
+ * Fetches a single message by ID from `GET /messages/:id`, including its
+ * full status-event timeline.
+ *
+ * The query is disabled when `id` is `null`, so it is safe to call this hook
+ * unconditionally even before a message has been selected.
+ *
+ * Refetches every 3 seconds while the sheet is open.
+ *
+ * @param id - UUID of the message to fetch, or `null` to skip the request.
+ *
+ * @returns A React Query result object. The `data` property is a
+ *   `MessageWithEvents` (message fields + `statusEvents` array).
+ *
+ * @example
+ * ```tsx
+ * const { data: message, isLoading } = useMessage(selectedId)
+ * ```
+ */
 export function useMessage(id: string | null) {
   return useQuery({
     queryKey: [...QUERY_KEY, 'detail', id],
@@ -39,6 +82,27 @@ export function useMessage(id: string | null) {
   })
 }
 
+/**
+ * Mutation hook for scheduling a new message via `POST /messages`.
+ *
+ * On success, invalidates all `messages` queries so the table and stats
+ * refresh automatically.
+ *
+ * @returns
+ * - `createMessage`       — `async (input: CreateMessageInput) => MessageResponse`
+ * - `isCreatingMessage`   — `boolean` — `true` while the request is in-flight.
+ * - `createMessageError`  — The error thrown by the last failed mutation, or `null`.
+ *
+ * @throws The underlying Axios error is stored in `createMessageError`.
+ *   The response body typically contains `{ message: string }` with a
+ *   human-readable reason.
+ *
+ * @example
+ * ```tsx
+ * const { createMessage, isCreatingMessage } = useCreateMessage()
+ * await createMessage({ toPhone: '+15551234567', body: 'Hello', scheduledAt: iso })
+ * ```
+ */
 export function useCreateMessage() {
   const queryClient = useQueryClient()
 
@@ -59,6 +123,32 @@ export function useCreateMessage() {
   }
 }
 
+/**
+ * Mutation hook for cancelling a scheduled message via `PATCH /messages/:id/cancel`.
+ *
+ * Only messages in `SCHEDULED` status can be cancelled. The API returns 400
+ * with `{ message: string }` if the status is not eligible.
+ *
+ * On success, invalidates the message list and the specific detail query for
+ * the cancelled message.
+ *
+ * @returns
+ * - `cancelMessage`        — `(id: string, options?) => void` (non-async `mutate`).
+ * - `isCancellingMessage`  — `boolean` — `true` while the request is in-flight.
+ * - `cancelMessageError`   — The error from the last failed mutation, or `null`.
+ *
+ * @throws The underlying Axios error is stored in `cancelMessageError`.
+ *   The response body typically contains `{ message: string }`.
+ *
+ * @example
+ * ```tsx
+ * const { cancelMessage } = useCancelMessage()
+ * cancelMessage(message.id, {
+ *   onSuccess: () => toast.success('Cancelled'),
+ *   onError: (err) => toast.error(err.message),
+ * })
+ * ```
+ */
 export function useCancelMessage() {
   const queryClient = useQueryClient()
 
