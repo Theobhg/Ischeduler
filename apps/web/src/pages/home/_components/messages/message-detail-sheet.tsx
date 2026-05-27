@@ -10,24 +10,13 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { MessageStatusBadge } from './message-status-badge'
+import { messageStatusTone } from './status-tones'
+import { cn } from '@/lib/utils'
 
 interface MessageDetailSheetProps {
   messageId: string | null
   open: boolean
   onOpenChange: (open: boolean) => void
-}
-
-type BadgeVariant = 'default' | 'secondary' | 'outline' | 'destructive'
-
-const TIMELINE_VARIANT: Record<MessageStatus, BadgeVariant> = {
-  SCHEDULED: 'outline',
-  QUEUED: 'outline',
-  ACCEPTED: 'secondary',
-  SENT: 'secondary',
-  DELIVERED: 'default',
-  RECEIVED: 'default',
-  FAILED: 'destructive',
-  CANCELLED: 'outline',
 }
 
 function copyToClipboard(text: string, label: string) {
@@ -169,8 +158,11 @@ function StatusTimeline({ events }: { events: StatusEvent[] }) {
         <li key={event.id} className="flex items-start gap-3">
           <div className="flex flex-col items-center">
             <Badge
-              variant={TIMELINE_VARIANT[event.status as MessageStatus]}
-              className="size-2.5 rounded-full p-0 shrink-0 mt-1"
+              variant="outline"
+              className={cn(
+                'size-2.5 rounded-full border-transparent p-0 shrink-0 mt-1',
+                messageStatusTone[event.status as MessageStatus],
+              )}
             />
             {idx < events.length - 1 && (
               <Separator orientation="vertical" className="flex-1 my-1 min-h-6" />

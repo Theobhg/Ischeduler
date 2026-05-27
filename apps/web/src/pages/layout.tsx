@@ -1,8 +1,12 @@
-import { Outlet } from 'react-router'
+import { AnimatePresence } from 'motion/react'
+import { Outlet, useLocation } from 'react-router'
 import { AppSidebar } from '@/components/layout/app-sidebar'
+import { PageMotion } from '@/components/motion/page-motion'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 
 export function DashboardLayout() {
+  const location = useLocation()
+
   return (
     <SidebarProvider>
       <AppSidebar variant="floating" />
@@ -11,7 +15,11 @@ export function DashboardLayout() {
           <SidebarTrigger />
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4">
-          <Outlet />
+          <AnimatePresence mode="wait">
+            <PageMotion key={location.pathname} className="flex flex-1 flex-col">
+              <Outlet />
+            </PageMotion>
+          </AnimatePresence>
         </div>
       </SidebarInset>
     </SidebarProvider>

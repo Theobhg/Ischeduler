@@ -1,7 +1,9 @@
-import * as React from "react"
+import type * as React from "react"
+import { motion, useReducedMotion } from "motion/react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { Slot } from "radix-ui"
 
+import { buttonMotion } from "@/lib/motion"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
@@ -49,14 +51,27 @@ function Button({
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean
   }) {
-  const Comp = asChild ? Slot.Root : "button"
+  const shouldReduceMotion = useReducedMotion()
+
+  if (asChild) {
+    return (
+      <Slot.Root
+        data-slot="button"
+        data-variant={variant}
+        data-size={size}
+        className={cn(buttonVariants({ variant, size, className }))}
+        {...props}
+      />
+    )
+  }
 
   return (
-    <Comp
+    <motion.button
       data-slot="button"
       data-variant={variant}
       data-size={size}
       className={cn(buttonVariants({ variant, size, className }))}
+      {...(shouldReduceMotion ? {} : buttonMotion)}
       {...props}
     />
   )
