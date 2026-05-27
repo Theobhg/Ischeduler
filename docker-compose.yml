@@ -1,0 +1,31 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: app-postgres-ischeduler
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: app
+      TZ: America/Sao_Paulo
+      PGTZ: America/Sao_Paulo
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - /etc/localtime:/etc/localtime:ro
+    command: postgres -c 'max_connections=200' -c 'shared_preload_libraries=pg_stat_statements' -c 'timezone=America/Sao_Paulo'
+  
+  redis:
+    image: redis:latest
+    container_name: app-redis-ischeduler
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    environment:
+      TZ: America/Sao_Paulo
+    volumes:
+      - redis_data:/data
+volumes:
+  pg_data:
+  redis_data:

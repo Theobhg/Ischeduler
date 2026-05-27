@@ -1,0 +1,29 @@
+{
+  "name": "ischeduler",
+  "private": true,
+  "scripts": {
+    "build": "pnpm with-env turbo run build",
+    "start": "pnpm with-env turbo run start",
+    "dev": "pnpm with-env turbo run dev",
+    "lint": "turbo run lint",
+    "check-types": "turbo run check-types",
+    "db:generate": "pnpm with-env turbo run db:generate",
+    "db:migrate": "pnpm with-env turbo run db:migrate",
+    "db:deploy": "pnpm with-env turbo run db:deploy",
+    "db:reset": "pnpm with-env turbo run db:reset",
+    "db:studio": "pnpm with-env turbo run db:studio",
+    "with-env": "dotenv -e .env --"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.3.15",
+    "turbo": "^2.8.7",
+    "typescript": "5.9.2"
+  },
+  "packageManager": "pnpm@10.29.3",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "dotenv-cli": "^11.0.0"
+  }
+}

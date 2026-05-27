@@ -1,0 +1,14 @@
+{
+  "include": ["src/**/*", "@types/*.d.ts", "error-handler.ts", "env.ts"],
+  "compilerOptions": {
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "target": "ES2023",
+    "strict": true,
+    "esModuleInterop": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}
