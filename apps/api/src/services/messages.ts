@@ -1,13 +1,8 @@
-import type {
-  CreateMessageInput,
-  GatewayStatusPayload,
-  ListMessagesQuery,
-  MessageStatus,
-} from '@ischeduler/shared'
+import type { CreateMessageInput, GatewayStatusPayload, ListMessagesQuery, MessageStatus } from '@ischeduler/shared'
+import { BadRequestError } from '../lib/errors/bad-request-error'
 import { prisma } from '../lib/prisma'
 import { enqueueMessage, messagesQueue } from '../lib/queue'
 import { assertTransition } from '../lib/status-machine'
-import { BadRequestError } from '../lib/errors/bad-request-error'
 
 export async function createScheduledMessage(input: CreateMessageInput) {
   const message = await prisma.$transaction(async (tx) => {

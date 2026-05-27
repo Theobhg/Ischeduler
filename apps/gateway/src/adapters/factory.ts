@@ -1,6 +1,6 @@
+import { AppleScriptAdapter } from './applescript'
 import type { IMessageGateway } from './interface'
 import { MockAdapter } from './mock'
-import { AppleScriptAdapter } from './applescript'
 
 export function createAdapter(): IMessageGateway {
   const adapterType = process.env.GATEWAY_ADAPTER ?? 'mock'
