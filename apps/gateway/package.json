@@ -1,0 +1,24 @@
+{
+  "name": "gateway",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm env:load tsx watch src/index.ts",
+    "start": "pnpm env:load tsx src/index.ts",
+    "env:load": "dotenv -e ../../.env --"
+  },
+  "dependencies": {
+    "@fastify/cors": "^11.1.0",
+    "axios": "^1.13.5",
+    "fastify": "^5.6.2",
+    "fastify-type-provider-zod": "^6.1.0",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@ischeduler/typescript-config": "workspace:*",
+    "@types/node": "^25.2.3",
+    "dotenv-cli": "^11.0.0",
+    "tsx": "^4.20.6",
+    "typescript": "5.9.2"
+  }
+}
