@@ -1,1 +1,6 @@
-// use this file to import and export all the types for the web app
+import type { ListMessagesQuery } from '@ischeduler/shared'
+
+export type MessagesFilters = Omit<ListMessagesQuery, 'limit' | 'offset'> & {
+  limit?: number
+  offset?: number
+}

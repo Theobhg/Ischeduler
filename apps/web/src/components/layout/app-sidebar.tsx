@@ -1,4 +1,4 @@
-import { LayoutDashboardIcon } from 'lucide-react'
+import { CalendarClockIcon, LayoutDashboardIcon } from 'lucide-react'
 import type * as React from 'react'
 import { Link } from 'react-router'
 
@@ -20,6 +20,12 @@ const data = {
       url: '/',
       exact: true,
       icon: LayoutDashboardIcon,
+    },
+    {
+      title: 'Schedule',
+      url: '/schedule',
+      exact: false,
+      icon: CalendarClockIcon,
     },
   ],
 }
