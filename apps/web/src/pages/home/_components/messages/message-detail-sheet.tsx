@@ -1,17 +1,17 @@
+import type { MessageStatus, StatusEvent } from '@ischeduler/shared'
 import { format } from 'date-fns'
 import { CopyIcon } from 'lucide-react'
 import { toast } from 'sonner'
-import type { MessageStatus, StatusEvent } from '@ischeduler/shared'
-import { useMessage } from '@/hooks/use-messages'
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
-import { Separator } from '@/components/ui/separator'
-import { Skeleton } from '@/components/ui/skeleton'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import { Skeleton } from '@/components/ui/skeleton'
+import { useMessage } from '@/hooks/use-messages'
+import { cn } from '@/lib/utils'
 import { MessageStatusBadge } from './message-status-badge'
 import { messageStatusTone } from './status-tones'
-import { cn } from '@/lib/utils'
 
 interface MessageDetailSheetProps {
   messageId: string | null
@@ -33,9 +33,7 @@ export function MessageDetailSheet({ messageId, open, onOpenChange }: MessageDet
       <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
         <SheetHeader>
           <SheetTitle>Message Details</SheetTitle>
-          <SheetDescription>
-            Full status history and delivery information for this scheduled message.
-          </SheetDescription>
+          <SheetDescription>Full status history and delivery information for this scheduled message.</SheetDescription>
         </SheetHeader>
 
         {isLoading && (
@@ -53,7 +51,9 @@ export function MessageDetailSheet({ messageId, open, onOpenChange }: MessageDet
             <dl className="flex flex-col gap-3">
               <div className="flex items-center justify-between">
                 <dt className="text-sm text-muted-foreground">Status</dt>
-                <dd><MessageStatusBadge status={message.status} /></dd>
+                <dd>
+                  <MessageStatusBadge status={message.status} />
+                </dd>
               </div>
 
               <div className="flex items-center justify-between">
@@ -164,15 +164,11 @@ function StatusTimeline({ events }: { events: StatusEvent[] }) {
                 messageStatusTone[event.status as MessageStatus],
               )}
             />
-            {idx < events.length - 1 && (
-              <Separator orientation="vertical" className="flex-1 my-1 min-h-6" />
-            )}
+            {idx < events.length - 1 && <Separator orientation="vertical" className="flex-1 my-1 min-h-6" />}
           </div>
           <div className="flex flex-col gap-0.5 pb-3">
             <p className="text-sm font-medium leading-none">{event.status}</p>
-            <p className="text-xs text-muted-foreground">
-              {format(new Date(event.createdAt), 'PPp')}
-            </p>
+            <p className="text-xs text-muted-foreground">{format(new Date(event.createdAt), 'PPp')}</p>
           </div>
         </li>
       ))}

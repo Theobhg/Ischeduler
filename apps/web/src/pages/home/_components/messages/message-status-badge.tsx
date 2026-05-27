@@ -12,10 +12,7 @@ export function MessageStatusBadge({ status }: MessageStatusBadgeProps) {
   const label = messageStatusLabel[status]
 
   return (
-    <Badge
-      variant="outline"
-      className={cn('border-transparent font-medium', messageStatusTone[status])}
-    >
+    <Badge variant="outline" className={cn('border-transparent font-medium', messageStatusTone[status])}>
       <Icon data-icon="inline-start" />
       {label}
     </Badge>

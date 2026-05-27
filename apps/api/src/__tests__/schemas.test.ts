@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
 import { createMessageSchema, gatewayStatusSchema } from '@ischeduler/shared'
+import { describe, expect, it } from 'vitest'
 
 describe('createMessageSchema', () => {
   const futureDate = new Date(Date.now() + 3600_000).toISOString()

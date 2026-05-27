@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
 import type { Job } from 'bullmq'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // ─── Hoist mocks ─────────────────────────────────────────────────────────────
 
@@ -89,9 +89,7 @@ describe('processor', () => {
 
   it('throws on gateway error to trigger BullMQ retry', async () => {
     const axios = await import('axios')
-    ;(axios.default.post as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
-      new Error('gateway timeout'),
-    )
+    ;(axios.default.post as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('gateway timeout'))
 
     await expect(processor(makeJob('msg-1'))).rejects.toThrow(/gateway/i)
   })

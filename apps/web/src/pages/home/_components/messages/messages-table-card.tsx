@@ -1,6 +1,6 @@
-import type { ColumnDef } from '@tanstack/react-table'
 import type { MessageResponse, MessageStatus } from '@ischeduler/shared'
 import { MESSAGE_STATUSES } from '@ischeduler/shared'
+import type { ColumnDef } from '@tanstack/react-table'
 import { SendIcon } from 'lucide-react'
 import { DataTable } from '@/components/data-table'
 import { PrimaryIconBadge } from '@/components/primary-icon-badge'
@@ -44,10 +44,7 @@ export function MessagesTableCard({
             <SendIcon />
           </PrimaryIconBadge>
           Messages
-          <Badge
-            variant="outline"
-            className="ml-auto border-primary/20 bg-primary/10 font-normal text-primary"
-          >
+          <Badge variant="outline" className="ml-auto border-primary/20 bg-primary/10 font-normal text-primary">
             {total} total
           </Badge>
         </CardTitle>

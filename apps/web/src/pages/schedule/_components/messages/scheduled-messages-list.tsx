@@ -1,9 +1,9 @@
 import { CalendarClockIcon } from 'lucide-react'
-import { useMessages } from '@/hooks/use-messages'
+import { PrimaryIconBadge } from '@/components/primary-icon-badge'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { PrimaryIconBadge } from '@/components/primary-icon-badge'
+import { useMessages } from '@/hooks/use-messages'
 import { ScheduledMessageCard } from './scheduled-message-card'
 
 export function ScheduledMessagesList() {
@@ -21,10 +21,7 @@ export function ScheduledMessagesList() {
             <CalendarClockIcon />
           </PrimaryIconBadge>
           Scheduled Messages
-          <Badge
-            variant="outline"
-            className="ml-auto border-primary/20 bg-primary/10 font-normal text-primary"
-          >
+          <Badge variant="outline" className="ml-auto border-primary/20 bg-primary/10 font-normal text-primary">
             {messages.length}
           </Badge>
         </CardTitle>

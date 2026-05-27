@@ -1,5 +1,5 @@
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import type { MessageStats } from '@ischeduler/shared'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/api'
 
 /**

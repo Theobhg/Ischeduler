@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
+import type { ReactNode } from 'react'
 import { fadeUpVariants } from '@/lib/motion'
 
 interface PageMotionProps {
@@ -15,12 +15,7 @@ export function PageMotion({ children, className }: PageMotionProps) {
   }
 
   return (
-    <motion.div
-      className={className}
-      variants={fadeUpVariants}
-      initial="hidden"
-      animate="visible"
-    >
+    <motion.div className={className} variants={fadeUpVariants} initial="hidden" animate="visible">
       {children}
     </motion.div>
   )

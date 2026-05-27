@@ -1,5 +1,5 @@
-import { PageMotion } from '@/components/motion/page-motion'
 import { PageHeader } from '@/components/layout/page-header'
+import { PageMotion } from '@/components/motion/page-motion'
 import { useMessageStats } from '@/hooks/use-message-stats'
 import { useQueueStats } from '@/hooks/use-queue-stats'
 import { MessagesSection } from './_components/messages'

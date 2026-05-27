@@ -1,5 +1,5 @@
-import { PageMotion } from '@/components/motion/page-motion'
 import { PageHeader } from '@/components/layout/page-header'
+import { PageMotion } from '@/components/motion/page-motion'
 import { ScheduledMessagesList } from './_components/messages'
 import { ScheduleForm } from './_components/schedule-form'
 

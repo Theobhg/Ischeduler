@@ -1,6 +1,6 @@
 import { queueStatsSchema } from '@ischeduler/shared'
-import { router } from '../../lib/router'
 import { getQueueStats } from '../../lib/queue'
+import { router } from '../../lib/router'
 
 /**
  * GET /queue/stats

@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { canTransition, STATUS_TRANSITIONS, type MessageStatus } from '@ischeduler/shared'
+import { canTransition, type MessageStatus, STATUS_TRANSITIONS } from '@ischeduler/shared'
+import { describe, expect, it } from 'vitest'
 
 describe('status transitions', () => {
   it('allows SCHEDULED → QUEUED', () => {

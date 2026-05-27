@@ -1,9 +1,9 @@
 import type { MessageResponse } from '@ischeduler/shared'
 import { format } from 'date-fns'
 import { ClockIcon, PhoneIcon } from 'lucide-react'
+import { PrimaryIconBadge } from '@/components/primary-icon-badge'
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import { PrimaryIconBadge } from '@/components/primary-icon-badge'
 
 function formatPhoneDisplay(phone: string) {
   const match = phone.match(/^\+1(\d{3})(\d{3})(\d{4})$/)
