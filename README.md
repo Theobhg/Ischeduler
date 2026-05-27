@@ -18,14 +18,16 @@ React UI → API → Postgres (source of truth)
 
 ### Apps & Packages
 
-| Path | Description |
-|---|---|
-| `apps/web` | React + Vite scheduling UI and dashboard |
-| `apps/api` | REST API (Fastify + Prisma) |
-| `apps/worker` | BullMQ delivery worker |
-| `apps/gateway` | Local iMessage gateway (`mock` or `applescript`) |
-| `packages/database` | Prisma schema, migrations, and generated client |
-| `packages/shared` | Shared types, Zod schemas, status enum |
+
+| Path                | Description                                      |
+| ------------------- | ------------------------------------------------ |
+| `apps/web`          | React + Vite scheduling UI and dashboard         |
+| `apps/api`          | REST API (Fastify + Prisma)                      |
+| `apps/worker`       | BullMQ delivery worker                           |
+| `apps/gateway`      | Local iMessage gateway (`mock` or `applescript`) |
+| `packages/database` | Prisma schema, migrations, and generated client  |
+| `packages/shared`   | Shared types, Zod schemas, status enum           |
+
 
 ## Getting Started
 
@@ -69,18 +71,22 @@ pnpm db:migrate
 pnpm dev
 ```
 
-| Service | URL |
-|---|---|
-| Web UI | http://localhost:5173 |
-| API | http://localhost:3333 |
-| Gateway | http://localhost:4000 |
+
+| Service | URL                                            |
+| ------- | ---------------------------------------------- |
+| Web UI  | [http://localhost:5173](http://localhost:5173) |
+| API     | [http://localhost:3333](http://localhost:3333) |
+| Gateway | [http://localhost:4000](http://localhost:4000) |
+
 
 ## Gateway Adapters
 
-| Adapter | Description |
-|---|---|
-| `mock` (default) | Simulates send/failure deterministically. Works on any machine. |
-| `applescript` | Sends real iMessages via macOS `Messages.app` automation. Requires macOS with iMessage signed in and Automation permissions granted to Terminal/Node. |
+
+| Adapter          | Description                                                                                                                                           |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `mock` (default) | Simulates send/failure deterministically. Works on any machine.                                                                                       |
+| `applescript`    | Sends real iMessages via macOS `Messages.app` automation. Requires macOS with iMessage signed in and Automation permissions granted to Terminal/Node. |
+
 
 Set the adapter in `.env`:
 
@@ -125,15 +131,17 @@ This is just something I imagine — not implemented, but how I'd think about sc
 
 ### Infrastructure map
 
-| Local | AWS equivalent |
-|---|---|
-| Docker Postgres | **RDS PostgreSQL** (Multi-AZ) |
-| Docker Redis | **ElastiCache for Redis** (cluster mode) |
-| `pnpm dev` API | **ECS Fargate** — containerised API service |
-| `pnpm dev` Worker | **ECS Fargate** — separate worker service (scales independently) |
+
+| Local                   | AWS equivalent                                                                      |
+| ----------------------- | ----------------------------------------------------------------------------------- |
+| Docker Postgres         | **RDS PostgreSQL** (Multi-AZ)                                                       |
+| Docker Redis            | **ElastiCache for Redis** (cluster mode)                                            |
+| `pnpm dev` API          | **ECS Fargate** — containerised API service                                         |
+| `pnpm dev` Worker       | **ECS Fargate** — separate worker service (scales independently)                    |
 | Gateway (local process) | **EC2 Mac instance** running the gateway, or replaced by a third-party iMessage API |
-| React + Vite | **S3 + CloudFront** static hosting |
-| Manual deploys | **GitHub Actions** CI/CD pipeline |
+| React + Vite            | **S3 + CloudFront** static hosting                                                  |
+| Manual deploys          | **GitHub Actions** CI/CD pipeline                                                   |
+
 
 ### Architecture diagram
 
@@ -153,3 +161,4 @@ ECS Fargate — API            ECS Fargate — Worker
               │
        EC2 Mac / 3rd-party gateway
 ```
+
