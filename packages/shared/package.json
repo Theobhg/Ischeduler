@@ -1,0 +1,15 @@
+{
+  "name": "@ischeduler/shared",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@ischeduler/typescript-config": "workspace:*",
+    "typescript": "5.9.2"
+  }
+}
