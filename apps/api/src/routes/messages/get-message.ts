@@ -3,6 +3,23 @@ import { z } from 'zod'
 import { router } from '../../lib/router'
 import { messagesService } from '../../services/messages'
 
+/**
+ * GET /messages/:id
+ *
+ * Retrieves a single message including its full status-event timeline,
+ * ordered chronologically (oldest → newest).
+ *
+ * @route GET /messages/:id
+ * @tags messages
+ *
+ * @param {string} id - UUID of the scheduled message.
+ *
+ * @response 200 {MessageWithEvents}
+ *   The message record plus a `statusEvents` array — each entry contains
+ *   `{ id, messageId, status, payload, idempotencyKey, createdAt }`.
+ * @response 404 `{ message: "Message not found" }` — no record with the given id.
+ * @response 500 Database error.
+ */
 export const getMessageRoute = router({
   method: 'get',
   path: '/messages/:id',
