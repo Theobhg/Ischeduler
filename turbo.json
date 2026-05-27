@@ -59,6 +59,16 @@
   },
   "globalEnv": [
     "DATABASE_URL",
-    "REDIS_URL"
+    "REDIS_URL",
+    "GATEWAY_URL",
+    "GATEWAY_PORT",
+    "GATEWAY_ADAPTER",
+    "MOCK_FAILURE_RATE",
+    "API_STATUS_CALLBACK_URL",
+    "SEND_INTERVAL_MS",
+    "WORKER_CONCURRENCY",
+    "WORKER_ATTEMPTS",
+    "WORKER_BACKOFF_MS",
+    "VITE_API_URL"
   ]
 }
