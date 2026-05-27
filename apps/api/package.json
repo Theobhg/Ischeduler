@@ -4,25 +4,32 @@
   "scripts": {
     "dev": "pnpm env:load tsx watch src/server.ts",
     "build": "pnpm env:load tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "env:load": "dotenv -e ../../.env --"
   },
   "dependencies": {
-    "@ischeduler/database": "workspace:*",
     "@fastify/cors": "^11.1.0",
     "@fastify/swagger": "^9.6.1",
     "@fastify/swagger-ui": "^5.2.3",
+    "@ischeduler/database": "workspace:*",
+    "@ischeduler/shared": "workspace:*",
     "@prisma/adapter-pg": "^7.0.0",
+    "bullmq": "^5.77.6",
     "date-fns": "^4.1.0",
     "fastify": "^5.6.2",
     "fastify-plugin": "^5.1.0",
     "fastify-type-provider-zod": "^6.1.0",
+    "ioredis": "^5.11.0",
     "pg": "^8.16.3",
     "zod": "^4.1.12"
   },
   "devDependencies": {
     "@types/node": "^25.2.3",
     "@types/pg": "^8.15.6",
+    "@vitest/coverage-v8": "^4.1.7",
     "dotenv-cli": "^11.0.0",
-    "tsx": "^4.20.6"
+    "tsx": "^4.20.6",
+    "vitest": "^4.1.7"
   }
 }

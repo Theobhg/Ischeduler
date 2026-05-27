@@ -1,5 +1,4 @@
 import fastifyCors from '@fastify/cors'
-import fastifyMultipart from '@fastify/multipart'
 import fastifySwagger from '@fastify/swagger'
 import fastifySwaggerUi from '@fastify/swagger-ui'
 import { fastify } from 'fastify'
@@ -11,6 +10,12 @@ import {
 } from 'fastify-type-provider-zod'
 import { validateEnv } from '../env'
 import { errorHandler } from '../error-handler'
+import { gatewayStatusRoute } from './routes/gateway/gateway-status'
+import { cancelMessageRoute } from './routes/messages/cancel-message'
+import { createMessageRoute } from './routes/messages/create-message'
+import { getMessageRoute } from './routes/messages/get-message'
+import { listMessagesRoute } from './routes/messages/list-messages'
+import { queueStatsRoute } from './routes/queue/queue-stats'
 
 /* 
 ==============================================
@@ -34,8 +39,8 @@ app.setErrorHandler(errorHandler)
 app.register(fastifySwagger, {
   openapi: {
     info: {
-      title: 'App API',
-      description: 'App API',
+      title: 'IScheduler API',
+      description: 'iMessage Scheduler REST API',
       version: '1.0.0',
     },
   },
@@ -52,13 +57,8 @@ app.register(fastifySwaggerUi, {
 ============================================== 
 */
 
-app.register(fastifyMultipart, {
-  limits: {
-    fileSize: 25 * 1024 * 1024, // 25MB for audio files
-  },
-})
-
 app.register(fastifyCors, {
+  origin: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
 })
 
@@ -68,6 +68,12 @@ app.register(fastifyCors, {
 ============================================== 
 */
 
+app.register(createMessageRoute)
+app.register(listMessagesRoute)
+app.register(getMessageRoute)
+app.register(cancelMessageRoute)
+app.register(gatewayStatusRoute)
+app.register(queueStatsRoute)
 
 /* 
 ==============================================
@@ -78,5 +84,5 @@ app.register(fastifyCors, {
 validateEnv()
 
 app.listen({ port: 3333, host: '0.0.0.0' }).then(() => {
-  console.log('🚀 HTTP server running on port 3333')
+  console.log('HTTP server running on port 3333')
 })
