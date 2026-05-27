@@ -69,10 +69,10 @@ export function getMessageColumns({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="size-8"
+                  aria-label="View timeline"
                   onClick={() => onView(msg.id)}
                 >
-                  <EyeIcon className="size-4" />
+                  <EyeIcon data-icon />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>View timeline</TooltipContent>
@@ -84,11 +84,12 @@ export function getMessageColumns({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="size-8 text-destructive hover:text-destructive"
+                    aria-label="Cancel message"
+                    className="text-destructive hover:text-destructive"
                     disabled={isCancelling}
                     onClick={() => onCancel(msg.id)}
                   >
-                    <XCircleIcon className="size-4" />
+                    <XCircleIcon data-icon />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Cancel message</TooltipContent>

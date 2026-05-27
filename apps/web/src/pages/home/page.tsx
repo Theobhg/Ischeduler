@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { formatDistanceToNow } from 'date-fns'
 import {
   AlertCircleIcon,
   CalendarClockIcon,
@@ -9,34 +8,25 @@ import {
   SendIcon,
   XCircleIcon,
 } from 'lucide-react'
-import type { MessageResponse, MessageStatus } from '@ischeduler/shared'
+import type { MessageStatus } from '@ischeduler/shared'
 import { MESSAGE_STATUSES } from '@ischeduler/shared'
 import { useCancelMessage, useMessages } from '@/hooks/use-messages'
+import { useMessageStats } from '@/hooks/use-message-stats'
 import { useQueueStats } from '@/hooks/use-queue-stats'
 import { DataTable } from '@/components/data-table'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
 import { getMessageColumns } from '@/components/messages/message-columns'
 import { MessageDetailSheet } from '@/components/messages/message-detail-sheet'
+import { cn } from '@/lib/utils'
 
 const STATUS_FILTER_OPTIONS: { label: string; value: MessageStatus | 'ALL' }[] = [
   { label: 'All', value: 'ALL' },
   ...MESSAGE_STATUSES.map((s) => ({ label: s, value: s })),
 ]
-
-function deriveCounts(messages: MessageResponse[]) {
-  const counts = { SCHEDULED: 0, SENT: 0, FAILED: 0, CANCELLED: 0 }
-  for (const m of messages) {
-    if (m.status === 'SCHEDULED') counts.SCHEDULED++
-    else if (m.status === 'SENT' || m.status === 'DELIVERED' || m.status === 'RECEIVED') counts.SENT++
-    else if (m.status === 'FAILED') counts.FAILED++
-    else if (m.status === 'CANCELLED') counts.CANCELLED++
-  }
-  return counts
-}
 
 export function HomePage() {
   const [statusFilter, setStatusFilter] = useState<MessageStatus | 'ALL'>('ALL')
@@ -44,7 +34,7 @@ export function HomePage() {
   const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null)
   const [sheetOpen, setSheetOpen] = useState(false)
 
-  const { data: allData } = useMessages({ limit: 200 })
+  const { data: messageStats } = useMessageStats()
   const { data: filteredData } = useMessages({
     status: statusFilter === 'ALL' ? undefined : statusFilter,
     search: search.trim() || undefined,
@@ -53,17 +43,13 @@ export function HomePage() {
   const { data: queueStats } = useQueueStats()
   const { cancelMessage, isCancellingMessage } = useCancelMessage()
 
-  const allMessages = allData?.data ?? []
   const messages = filteredData?.data ?? []
   const total = filteredData?.total ?? 0
 
-  const counts = deriveCounts(allMessages)
   const failureRate =
-    allMessages.length > 0 ? Math.round((counts.FAILED / allMessages.length) * 100) : 0
-
-  const nextScheduled = allMessages
-    .filter((m) => m.status === 'SCHEDULED')
-    .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())[0]
+    messageStats && messageStats.total > 0
+      ? Math.round((messageStats.failed / messageStats.total) * 100)
+      : 0
 
   function handleCancel(id: string) {
     cancelMessage(id, {
@@ -89,33 +75,33 @@ export function HomePage() {
   })
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-bold">Dashboard</h1>
 
       {/* Summary cards */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <SummaryCard
           title="Scheduled"
-          value={counts.SCHEDULED}
-          icon={<CalendarClockIcon className="size-4 text-blue-500" />}
+          value={messageStats?.scheduled ?? 0}
+          icon={<CalendarClockIcon />}
           description="Pending delivery"
         />
         <SummaryCard
           title="Delivered"
-          value={counts.SENT}
-          icon={<CheckCircle2Icon className="size-4 text-green-500" />}
+          value={messageStats?.sent ?? 0}
+          icon={<CheckCircle2Icon />}
           description="Sent / delivered"
         />
         <SummaryCard
           title="Failed"
-          value={counts.FAILED}
-          icon={<AlertCircleIcon className="size-4 text-red-500" />}
+          value={messageStats?.failed ?? 0}
+          icon={<AlertCircleIcon />}
           description={`${failureRate}% failure rate`}
         />
         <SummaryCard
           title="Cancelled"
-          value={counts.CANCELLED}
-          icon={<XCircleIcon className="size-4 text-gray-400" />}
+          value={messageStats?.cancelled ?? 0}
+          icon={<XCircleIcon />}
           description="User cancelled"
         />
       </div>
@@ -123,48 +109,48 @@ export function HomePage() {
       {/* Queue stats + extras row */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base flex items-center gap-2">
-              <DatabaseIcon className="size-4" />
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <DatabaseIcon />
               Queue Stats
             </CardTitle>
+            <CardDescription>Live BullMQ job counts</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-2">
               <QueueStatPill label="Waiting" value={queueStats?.waiting ?? 0} />
               <QueueStatPill label="Delayed" value={queueStats?.delayed ?? 0} />
-              <QueueStatPill label="Active" value={queueStats?.active ?? 0} color="text-green-600" />
-              <QueueStatPill label="Completed" value={queueStats?.completed ?? 0} color="text-blue-600" />
-              <QueueStatPill label="Failed" value={queueStats?.failed ?? 0} color="text-red-600" />
+              <QueueStatPill label="Active" value={queueStats?.active ?? 0} />
+              <QueueStatPill label="Completed" value={queueStats?.completed ?? 0} />
+              <QueueStatPill label="Failed" value={queueStats?.failed ?? 0} variant="destructive" />
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base flex items-center gap-2">
-              <ClockIcon className="size-4" />
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <ClockIcon />
               System Info
             </CardTitle>
+            <CardDescription>Message delivery overview</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Total messages</span>
-              <span className="font-medium">{allData?.total ?? '—'}</span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Failure rate</span>
-              <span className={`font-medium ${failureRate > 20 ? 'text-red-600' : ''}`}>
-                {failureRate}%
-              </span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Next scheduled</span>
-              <span className="font-medium">
-                {nextScheduled
-                  ? formatDistanceToNow(new Date(nextScheduled.scheduledAt), { addSuffix: true })
-                  : '—'}
-              </span>
+          <CardContent>
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Total messages</span>
+                <span className="font-medium">{messageStats?.total ?? '—'}</span>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Failure rate</span>
+                <span className={cn('font-medium', failureRate > 20 && 'text-destructive')}>
+                  {failureRate}%
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">In queue</span>
+                <span className="font-medium">{messageStats?.queued ?? '—'}</span>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -172,14 +158,15 @@ export function HomePage() {
 
       {/* Message table */}
       <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base flex items-center gap-2">
-            <SendIcon className="size-4" />
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <SendIcon />
             Messages
             <Badge variant="secondary" className="ml-auto font-normal">
               {total} total
             </Badge>
           </CardTitle>
+          <CardDescription>All scheduled and processed messages</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col sm:flex-row gap-3 mb-4">
@@ -197,11 +184,13 @@ export function HomePage() {
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
               <SelectContent>
-                {STATUS_FILTER_OPTIONS.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </SelectItem>
-                ))}
+                <SelectGroup>
+                  {STATUS_FILTER_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
               </SelectContent>
             </Select>
           </div>
@@ -232,11 +221,13 @@ function SummaryCard({
 }) {
   return (
     <Card>
-      <CardContent className="pt-5">
-        <div className="flex items-center justify-between mb-1">
-          <span className="text-sm text-muted-foreground">{title}</span>
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center justify-between text-sm font-medium text-muted-foreground">
+          {title}
           {icon}
-        </div>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
         <p className="text-2xl font-bold">{value}</p>
         <p className="text-xs text-muted-foreground mt-1">{description}</p>
       </CardContent>
@@ -247,15 +238,17 @@ function SummaryCard({
 function QueueStatPill({
   label,
   value,
-  color = 'text-foreground',
+  variant = 'secondary',
 }: {
   label: string
   value: number
-  color?: string
+  variant?: 'secondary' | 'destructive' | 'outline'
 }) {
   return (
-    <div className="flex flex-col items-center rounded-md border px-3 py-2 min-w-[70px]">
-      <span className={`text-lg font-bold ${color}`}>{value}</span>
+    <div className="flex flex-col items-center gap-1">
+      <Badge variant={variant} className="text-sm font-bold px-3 py-1">
+        {value}
+      </Badge>
       <span className="text-xs text-muted-foreground">{label}</span>
     </div>
   )
