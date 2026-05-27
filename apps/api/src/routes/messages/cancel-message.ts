@@ -1,7 +1,7 @@
 import { messageParamsSchema, messageResponseSchema } from '@ischeduler/shared'
 import { z } from 'zod'
 import { router } from '../../lib/router'
-import { cancelMessage } from '../../services/messages'
+import { messagesService } from '../../services/messages'
 
 export const cancelMessageRoute = router({
   method: 'patch',
@@ -16,7 +16,7 @@ export const cancelMessageRoute = router({
     },
   },
   handler: async (req, reply) => {
-    const message = await cancelMessage(req.params.id)
+    const message = await messagesService.cancel(req.params.id)
     if (!message) return reply.code(404).send({ message: 'Message not found' })
     return reply.send(message)
   },

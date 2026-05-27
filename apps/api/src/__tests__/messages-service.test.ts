@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // ─── Hoist mocks so they are available before module import ─────────────────
 
@@ -24,17 +24,16 @@ const { prismaMock, mockMessage } = vi.hoisted(() => {
       findMany: vi.fn().mockResolvedValue([mockMessage]),
       update: vi.fn().mockResolvedValue({ ...mockMessage, status: 'CANCELLED' }),
       count: vi.fn().mockResolvedValue(1),
+      groupBy: vi.fn().mockResolvedValue([]),
     },
     messageStatusEvent: {
       create: vi.fn().mockResolvedValue({ id: 'evt-1' }),
       upsert: vi.fn().mockResolvedValue({ id: 'evt-1' }),
     },
-    $transaction: vi.fn().mockImplementation(
-      async (fn: ((tx: typeof prismaMock) => Promise<unknown>) | unknown[]) => {
-        if (typeof fn === 'function') return fn(prismaMock)
-        for (const op of fn as Promise<unknown>[]) await op
-      },
-    ),
+    $transaction: vi.fn().mockImplementation(async (fn: ((tx: typeof prismaMock) => Promise<unknown>) | unknown[]) => {
+      if (typeof fn === 'function') return fn(prismaMock)
+      for (const op of fn as Promise<unknown>[]) await op
+    }),
   }
 
   return { prismaMock, mockMessage }
@@ -44,25 +43,34 @@ vi.mock('../lib/prisma.js', () => ({ prisma: prismaMock }))
 
 vi.mock('../lib/queue.js', () => ({
   enqueueMessage: vi.fn().mockResolvedValue(undefined),
-  messagesQueue: {
-    remove: vi.fn().mockResolvedValue(1),
-  },
+  messagesQueue: { remove: vi.fn().mockResolvedValue(1) },
 }))
 
-import { createScheduledMessage, cancelMessage, applyGatewayStatus } from '../services/messages'
+import { MessagesService } from '../services/messages'
+
+// ─── Queue mock ──────────────────────────────────────────────────────────────
+
+const queueMock = {
+  enqueue: vi.fn().mockResolvedValue(undefined),
+  remove: vi.fn().mockResolvedValue(undefined),
+}
 
 // ─── Tests ───────────────────────────────────────────────────────────────────
+
+let service: MessagesService
 
 beforeEach(() => {
   vi.clearAllMocks()
   prismaMock.scheduledMessage.findUnique.mockResolvedValue(mockMessage)
   prismaMock.scheduledMessage.create.mockResolvedValue(mockMessage)
   prismaMock.scheduledMessage.update.mockResolvedValue({ ...mockMessage, status: 'CANCELLED' })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  service = new MessagesService(prismaMock as any, queueMock)
 })
 
-describe('createScheduledMessage', () => {
+describe('create', () => {
   it('creates a message and returns serialized data', async () => {
-    const result = await createScheduledMessage({
+    const result = await service.create({
       toPhone: '+15551234567',
       body: 'Test message',
       scheduledAt: new Date(Date.now() + 3600_000).toISOString(),
@@ -72,12 +80,13 @@ describe('createScheduledMessage', () => {
     expect(result.status).toBe('SCHEDULED')
     expect(prismaMock.scheduledMessage.create).toHaveBeenCalledOnce()
     expect(prismaMock.messageStatusEvent.create).toHaveBeenCalledOnce()
+    expect(queueMock.enqueue).toHaveBeenCalledOnce()
   })
 })
 
-describe('cancelMessage', () => {
+describe('cancel', () => {
   it('cancels a SCHEDULED message', async () => {
-    const result = await cancelMessage(mockMessage.id)
+    const result = await service.cancel(mockMessage.id)
     expect(result?.status).toBe('CANCELLED')
   })
 
@@ -87,12 +96,12 @@ describe('cancelMessage', () => {
       status: 'QUEUED',
     })
 
-    await expect(cancelMessage(mockMessage.id)).rejects.toThrow(/Cannot cancel/)
+    await expect(service.cancel(mockMessage.id)).rejects.toThrow(/Cannot cancel/)
   })
 
   it('returns null for unknown message id', async () => {
     prismaMock.scheduledMessage.findUnique.mockResolvedValue(null)
-    const result = await cancelMessage('nonexistent-id')
+    const result = await service.cancel('nonexistent-id')
     expect(result).toBeNull()
   })
 })
@@ -108,7 +117,7 @@ describe('applyGatewayStatus (idempotency)', () => {
       status: 'ACCEPTED',
     })
 
-    const result = await applyGatewayStatus({
+    const result = await service.applyGatewayStatus({
       messageId: mockMessage.id,
       status: 'ACCEPTED',
       provider: 'mock',
@@ -124,7 +133,7 @@ describe('applyGatewayStatus (idempotency)', () => {
     prismaMock.scheduledMessage.findUnique.mockResolvedValue(mockMessage)
 
     await expect(
-      applyGatewayStatus({
+      service.applyGatewayStatus({
         messageId: mockMessage.id,
         status: 'SENT',
         provider: 'mock',
@@ -137,7 +146,7 @@ describe('applyGatewayStatus (idempotency)', () => {
   it('returns null for unknown message', async () => {
     prismaMock.scheduledMessage.findUnique.mockResolvedValue(null)
 
-    const result = await applyGatewayStatus({
+    const result = await service.applyGatewayStatus({
       messageId: '550e8400-e29b-41d4-a716-446655440099',
       status: 'SENT',
       provider: 'mock',

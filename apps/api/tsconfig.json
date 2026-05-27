@@ -1,5 +1,5 @@
 {
-  "include": ["src/**/*", "@types/*.d.ts", "error-handler.ts", "env.ts"],
+  "include": ["src/**/*", "types/**/*", "@types/*.d.ts", "error-handler.ts", "env.ts"],
   "compilerOptions": {
     "module": "nodenext",
     "moduleResolution": "nodenext",

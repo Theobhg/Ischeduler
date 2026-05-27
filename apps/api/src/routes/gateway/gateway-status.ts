@@ -1,7 +1,7 @@
 import { gatewayStatusSchema, messageResponseSchema } from '@ischeduler/shared'
 import { z } from 'zod'
 import { router } from '../../lib/router'
-import { applyGatewayStatus } from '../../services/messages'
+import { messagesService } from '../../services/messages'
 
 export const gatewayStatusRoute = router({
   method: 'post',
@@ -16,7 +16,7 @@ export const gatewayStatusRoute = router({
     },
   },
   handler: async (req, reply) => {
-    const message = await applyGatewayStatus(req.body)
+    const message = await messagesService.applyGatewayStatus(req.body)
     if (!message) return reply.code(404).send({ message: 'Message not found' })
     return reply.send(message)
   },

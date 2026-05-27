@@ -1,13 +1,18 @@
 import { Queue } from 'bullmq'
 
+function redisConnectionFromUrl(url: string) {
+  const parsed = new URL(url)
+  return {
+    host: parsed.hostname,
+    port: Number(parsed.port || 6379),
+    ...(parsed.password ? { password: decodeURIComponent(parsed.password) } : {}),
+  }
+}
+
 export const messagesQueue = new Queue('messages', {
-  connection: {
-    host: process.env.REDIS_HOST,
-    port: Number(process.env.REDIS_PORT ?? 6379),
-    password: process.env.REDIS_PASSWORD,
-  },
+  connection: redisConnectionFromUrl(process.env.REDIS_URL ?? 'redis://localhost:6379'),
   defaultJobOptions: {
-    removeOnComplete: true,
+    removeOnComplete: { age: 24 * 3600, count: 100 },
     removeOnFail: 50,
   },
 })

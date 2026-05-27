@@ -1,6 +1,6 @@
 import { listMessagesQuerySchema, listMessagesResponseSchema } from '@ischeduler/shared'
 import { router } from '../../lib/router'
-import { listMessages } from '../../services/messages'
+import { messagesService } from '../../services/messages'
 
 export const listMessagesRoute = router({
   method: 'get',
@@ -14,7 +14,7 @@ export const listMessagesRoute = router({
     },
   },
   handler: async (req, reply) => {
-    const result = await listMessages(req.query)
+    const result = await messagesService.list(req.query)
     return reply.send(result)
   },
 })

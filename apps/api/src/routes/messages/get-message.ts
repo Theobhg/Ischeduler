@@ -1,7 +1,7 @@
 import { messageParamsSchema, messageWithEventsSchema } from '@ischeduler/shared'
 import { z } from 'zod'
 import { router } from '../../lib/router'
-import { getMessage } from '../../services/messages'
+import { messagesService } from '../../services/messages'
 
 export const getMessageRoute = router({
   method: 'get',
@@ -16,7 +16,7 @@ export const getMessageRoute = router({
     },
   },
   handler: async (req, reply) => {
-    const message = await getMessage(req.params.id)
+    const message = await messagesService.findById(req.params.id)
     if (!message) return reply.code(404).send({ message: 'Message not found' })
     return reply.send(message)
   },
