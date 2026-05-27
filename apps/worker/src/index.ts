@@ -5,13 +5,18 @@ import { processor } from './processor'
 const SEND_INTERVAL_MS = Number(process.env.SEND_INTERVAL_MS ?? 60000)
 const WORKER_CONCURRENCY = Number(process.env.WORKER_CONCURRENCY ?? 1)
 
+function redisConnectionFromUrl(url: string) {
+  const parsed = new URL(url)
+  return {
+    host: parsed.hostname,
+    port: Number(parsed.port || 6379),
+    ...(parsed.password ? { password: decodeURIComponent(parsed.password) } : {}),
+    maxRetriesPerRequest: null as null,
+  }
+}
+
 const worker = new Worker('messages', processor, {
-  connection: {
-    host: 'localhost',
-    port: 6379,
-    password: '',
-    maxRetriesPerRequest: null,
-  },
+  connection: redisConnectionFromUrl(process.env.REDIS_URL ?? 'redis://localhost:6379'),
   concurrency: WORKER_CONCURRENCY,
   limiter: {
     max: 1,

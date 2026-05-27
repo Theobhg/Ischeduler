@@ -7,7 +7,7 @@ import { z } from 'zod'
 import { createAdapter } from './adapters/factory'
 
 const GATEWAY_PORT = Number(process.env.GATEWAY_PORT ?? 4000)
-const API_STATUS_CALLBACK_URL = process.env.API_STATUS_CALLBACK_URL ?? 'http://localhost:3333/api/gateway/status'
+const API_STATUS_CALLBACK_URL = process.env.API_STATUS_CALLBACK_URL ?? 'http://localhost:3333/gateway/status'
 
 const adapter = createAdapter()
 
