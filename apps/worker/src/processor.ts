@@ -27,21 +27,30 @@ export async function processor(job: Job<JobData>): Promise<void> {
     return
   }
 
-  if (message.status !== 'SCHEDULED') {
+  // Allow retry if the job was interrupted after QUEUED but before the gateway responded
+  const isRetryableQueued = message.status === 'QUEUED' && message.providerMessageId === null
+
+  if (message.status !== 'SCHEDULED' && !isRetryableQueued) {
     console.warn(`[processor] message ${messageId} has status ${message.status} — skipping`)
     return
   }
 
-  // Transition to QUEUED
-  await prisma.$transaction([
-    prisma.scheduledMessage.update({
-      where: { id: messageId },
+  // Atomic claim: only one worker can win the SCHEDULED -> QUEUED transition
+  if (message.status === 'SCHEDULED') {
+    const claimed = await prisma.scheduledMessage.updateMany({
+      where: { id: messageId, status: 'SCHEDULED' },
       data: { status: 'QUEUED' },
-    }),
-    prisma.messageStatusEvent.create({
+    })
+
+    if (claimed.count === 0) {
+      console.warn(`[processor] message ${messageId} was claimed by another worker — skipping`)
+      return
+    }
+
+    await prisma.messageStatusEvent.create({
       data: { messageId, status: 'QUEUED' },
-    }),
-  ])
+    })
+  }
 
   // Call gateway
   let gatewayResponse: GatewayResponse

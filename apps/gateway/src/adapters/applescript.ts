@@ -26,7 +26,7 @@ export class AppleScriptAdapter implements IMessageGateway {
       throw new Error(`[applescript] osascript failed: ${msg}`)
     }
 
-    const providerMessageId = `local-${Date.now()}`
+    const providerMessageId = `local-${input.messageId}`
 
     console.log(`[applescript] sent message ${input.messageId} → ${input.toPhone}`)
 

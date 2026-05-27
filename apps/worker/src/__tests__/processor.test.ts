@@ -22,6 +22,7 @@ const { prismaMock, scheduledMessage } = vi.hoisted(() => {
     scheduledMessage: {
       findUnique: vi.fn().mockResolvedValue(scheduledMessage),
       update: vi.fn().mockResolvedValue(scheduledMessage),
+      updateMany: vi.fn().mockResolvedValue({ count: 1 }),
     },
     messageStatusEvent: {
       create: vi.fn().mockResolvedValue({ id: 'evt-1' }),
@@ -61,8 +62,11 @@ describe('processor', () => {
   it('processes a SCHEDULED message and transitions to SENT', async () => {
     await processor(makeJob('msg-1'))
 
-    // Should have called $transaction twice: QUEUED transition, then SENT
-    expect(prismaMock.$transaction).toHaveBeenCalledTimes(2)
+    // Atomic claim via updateMany, then one $transaction for the SENT step
+    expect(prismaMock.scheduledMessage.updateMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: 'msg-1', status: 'SCHEDULED' } }),
+    )
+    expect(prismaMock.$transaction).toHaveBeenCalledTimes(1)
   })
 
   it('skips a CANCELLED message without calling gateway', async () => {
@@ -92,5 +96,30 @@ describe('processor', () => {
     ;(axios.default.post as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('gateway timeout'))
 
     await expect(processor(makeJob('msg-1'))).rejects.toThrow(/gateway/i)
+  })
+
+  it('skips when another worker already claimed the message (updateMany returns 0)', async () => {
+    prismaMock.scheduledMessage.updateMany.mockResolvedValueOnce({ count: 0 })
+
+    const axios = await import('axios')
+    await processor(makeJob('msg-1'))
+
+    expect(axios.default.post).not.toHaveBeenCalled()
+    expect(prismaMock.$transaction).not.toHaveBeenCalled()
+  })
+
+  it('retries a QUEUED message with no providerMessageId (interrupted before gateway)', async () => {
+    prismaMock.scheduledMessage.findUnique.mockResolvedValueOnce({
+      ...scheduledMessage,
+      status: 'QUEUED',
+      providerMessageId: null,
+    })
+
+    const axios = await import('axios')
+    await processor(makeJob('msg-1'))
+
+    // Skips the claim step since already QUEUED, goes straight to gateway
+    expect(prismaMock.scheduledMessage.updateMany).not.toHaveBeenCalled()
+    expect(axios.default.post).toHaveBeenCalled()
   })
 })

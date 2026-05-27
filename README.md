@@ -116,3 +116,40 @@ pnpm db:reset       # Reset and re-seed the database
 pnpm lint           # Run Biome linter
 pnpm check-types    # TypeScript type check across all packages
 ```
+
+---
+
+## How I'd run this in production
+
+This is just something I imagine — not implemented, but how I'd think about scaling this if it were a real product.
+
+### Infrastructure map
+
+| Local | AWS equivalent |
+|---|---|
+| Docker Postgres | **RDS PostgreSQL** (Multi-AZ) |
+| Docker Redis | **ElastiCache for Redis** (cluster mode) |
+| `pnpm dev` API | **ECS Fargate** — containerised API service |
+| `pnpm dev` Worker | **ECS Fargate** — separate worker service (scales independently) |
+| Gateway (local process) | **EC2 Mac instance** running the gateway, or replaced by a third-party iMessage API |
+| React + Vite | **S3 + CloudFront** static hosting |
+| Manual deploys | **GitHub Actions** CI/CD pipeline |
+
+### Architecture diagram
+
+```
+CloudFront + S3 (React UI)
+       │
+       ▼
+  ALB (HTTPS)
+       │
+       ▼
+ECS Fargate — API            ECS Fargate — Worker
+       │                            │
+       └──────┬─────────────────────┘
+              │
+        RDS PostgreSQL (source of truth)
+        ElastiCache Redis (BullMQ queue)
+              │
+       EC2 Mac / 3rd-party gateway
+```

@@ -13,7 +13,7 @@ export type MessageStatus = (typeof MESSAGE_STATUSES)[number]
 
 export const STATUS_TRANSITIONS: Record<MessageStatus, MessageStatus[]> = {
   SCHEDULED: ['QUEUED', 'CANCELLED'],
-  QUEUED: ['ACCEPTED', 'FAILED'],
+  QUEUED: ['ACCEPTED', 'SENT', 'FAILED'],
   ACCEPTED: ['SENT', 'FAILED'],
   SENT: ['DELIVERED', 'FAILED'],
   DELIVERED: ['RECEIVED'],

@@ -14,6 +14,10 @@ describe('status transitions', () => {
     expect(canTransition('QUEUED', 'ACCEPTED')).toBe(true)
   })
 
+  it('allows QUEUED → SENT (synchronous adapters skip ACCEPTED)', () => {
+    expect(canTransition('QUEUED', 'SENT')).toBe(true)
+  })
+
   it('allows QUEUED → FAILED', () => {
     expect(canTransition('QUEUED', 'FAILED')).toBe(true)
   })
