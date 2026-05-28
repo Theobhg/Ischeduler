@@ -51,6 +51,12 @@ cp .env.example .env
 
 Edit `.env` if needed. The defaults work out of the box for local development.
 
+> **OpenAI API key** — the AI message generation feature requires a valid key. Set it in `.env`:
+> ```env
+> OPENAI_API_KEY=sk-your-openai-api-key-here
+> ```
+> Get a key at [platform.openai.com/api-keys](https://platform.openai.com/api-keys).
+
 ### 3. Start infrastructure
 
 Starts Postgres and Redis containers in the background.
@@ -136,8 +142,8 @@ This is just something I imagine — not implemented, but how I'd think about sc
 | ----------------------- | ----------------------------------------------------------------------------------- |
 | Docker Postgres         | **RDS PostgreSQL** (Multi-AZ)                                                       |
 | Docker Redis            | **ElastiCache for Redis** (cluster mode)                                            |
-| `pnpm dev` API          | **ECS Fargate** — containerised API service                                         |
-| `pnpm dev` Worker       | **ECS Fargate** — separate worker service (scales independently)                    |
+| API          | **ECS Fargate** — containerised API service                                         |
+| Worker       | **ECS Fargate** — separate worker service (scales independently)                    |
 | Gateway (local process) | **EC2 Mac instance** running the gateway, or replaced by a third-party iMessage API |
 | React + Vite            | **S3 + CloudFront** static hosting                                                  |
 | Manual deploys          | **GitHub Actions** CI/CD pipeline                                                   |
