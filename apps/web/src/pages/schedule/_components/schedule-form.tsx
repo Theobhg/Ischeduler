@@ -1,6 +1,7 @@
 import { createMessageSchema } from '@ischeduler/shared'
 import { format } from 'date-fns'
 import { CalendarIcon, SendIcon } from 'lucide-react'
+import { GenerateMessageButton } from './generate-message-button'
 import { toast } from 'sonner'
 import { PrimaryIconBadge } from '@/components/primary-icon-badge'
 import { Button } from '@/components/ui/button'
@@ -21,10 +22,11 @@ export function ScheduleForm() {
   const form = useClientForm({
     schema: createMessageSchema,
     mode: 'onChange',
+    defaultValues: { toPhone: '', body: '', scheduledAt: '' },
     handler: (values) => createMessage(values),
     onSubmitSuccess: () => {
       toast.success('Message scheduled successfully!')
-      form.reset()
+      form.reset({ toPhone: '', body: '', scheduledAt: '' })
     },
     onSubmitError: (error) => {
       const msg = error?.response?.data?.message ?? error?.message ?? 'Failed to schedule message'
@@ -54,7 +56,7 @@ export function ScheduleForm() {
                 <FormItem>
                   <FormLabel>Recipient Phone Number</FormLabel>
                   <FormControl>
-                    <Input placeholder="+15551234567" {...field} />
+                    <Input placeholder="+15551234567" autoComplete="off" {...field} />
                   </FormControl>
                   <FormDescription>E.164 format — include country code.</FormDescription>
                   <FormMessage />
@@ -67,7 +69,10 @@ export function ScheduleForm() {
               name="body"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Message</FormLabel>
+                  <div className="flex items-center justify-between">
+                    <FormLabel>Message</FormLabel>
+                    <GenerateMessageButton form={form} />
+                  </div>
                   <FormControl>
                     <Textarea placeholder="Type your message..." className="resize-none min-h-[100px]" {...field} />
                   </FormControl>
