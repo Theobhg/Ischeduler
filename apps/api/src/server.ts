@@ -13,6 +13,7 @@ import { errorHandler } from '../error-handler'
 import { gatewayStatusRoute } from './routes/gateway/gateway-status'
 import { cancelMessageRoute } from './routes/messages/cancel-message'
 import { createMessageRoute } from './routes/messages/create-message'
+import { generateMessageRoute } from './routes/messages/generate-message'
 import { getMessageRoute } from './routes/messages/get-message'
 import { getMessageStatsRoute } from './routes/messages/get-message-stats'
 import { listMessagesRoute } from './routes/messages/list-messages'
@@ -70,6 +71,7 @@ app.register(fastifyCors, {
 */
 
 app.register(createMessageRoute)
+app.register(generateMessageRoute)
 app.register(listMessagesRoute)
 app.register(getMessageStatsRoute)
 app.register(getMessageRoute)

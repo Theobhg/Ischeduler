@@ -31,6 +31,13 @@ export const messageParamsSchema = z.object({
   id: z.uuid(),
 })
 
+export const generateMessageSchema = z.object({
+  prompt: z.string().optional().default(''),
+  draft: z.string().optional().default(''),
+})
+
+export type GenerateMessageInput = z.infer<typeof generateMessageSchema>
+
 export const gatewayStatusSchema = z.object({
   messageId: z.uuid(),
   status: z.enum(['ACCEPTED', 'SENT', 'DELIVERED', 'RECEIVED', 'FAILED']),

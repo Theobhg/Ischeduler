@@ -55,7 +55,7 @@ export function DataTable<TData, TValue>({
   const [sorting, setSorting] = useState<SortingState>([])
   const [internalPagination, setInternalPagination] = useState<PaginationState>({
     pageIndex: 0,
-    pageSize: 10,
+    pageSize: 4,
   })
 
   // Use external pagination state when in manual mode, otherwise use internal

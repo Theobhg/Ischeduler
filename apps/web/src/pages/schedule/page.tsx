@@ -8,7 +8,7 @@ export function SchedulePage() {
     <PageMotion className="flex min-h-[calc(100dvh-5rem)] w-full flex-col">
       <PageHeader title="Schedule" subtitle="Schedule an iMessage to be sent at a specific time." />
 
-      <div className="flex flex-1 flex-col items-center justify-center gap-6 pb-6">
+      <div className="flex flex-1 flex-col items-center gap-6 py-6">
         <div className="flex w-full max-w-5xl flex-col items-center gap-6">
           <ScheduleForm />
           <ScheduledMessagesList />
